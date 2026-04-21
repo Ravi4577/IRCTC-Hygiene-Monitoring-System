@@ -1,0 +1,145 @@
+/* ============================================
+   DASHBOARD PAGES
+   ============================================ */
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.page-header {
+  margin-bottom: 0.25rem;
+}
+
+.page-header h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.page-header p {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
+/* ---- Charts Grid ---- */
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.chart-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: 1.4rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+.chart-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.chart-card-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.chart-card-subtitle {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
+.chart-wide { grid-column: 1 / -1; }
+
+/* Fixed height containers — key for chart rendering */
+.chart-container {
+  position: relative;
+  height: 240px;
+  width: 100%;
+}
+
+.chart-container-sm {
+  position: relative;
+  height: 200px;
+  width: 100%;
+  max-width: 240px;
+  margin: 0 auto;
+}
+
+/* ---- Dashboard Section ---- */
+.dashboard-section {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: 1.4rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+/* ---- Vendor score bar in table ---- */
+.vendor-score-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.vendor-score-track {
+  width: 70px;
+  height: 6px;
+  background: var(--border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.vendor-score-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+}
+
+/* ---- Welcome banner ---- */
+.welcome-banner {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem 1.75rem;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+}
+
+.welcome-banner-text h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+}
+
+.welcome-banner-text p {
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+.welcome-banner-icon {
+  font-size: 3rem;
+  opacity: 0.8;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 900px) {
+  .charts-grid { grid-template-columns: 1fr; }
+  .chart-wide { grid-column: 1; }
+}
+
+@media (max-width: 600px) {
+  .chart-container { height: 200px; }
+}

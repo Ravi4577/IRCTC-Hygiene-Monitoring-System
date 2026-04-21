@@ -1,0 +1,78 @@
+/* ============================================
+   INSPECTIONS MODULE
+   ============================================ */
+.grade {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+.grade-A { background: #dcfce7; color: #15803d; }
+.grade-B { background: #dbeafe; color: #1d4ed8; }
+.grade-C { background: #fef9c3; color: #a16207; }
+.grade-D { background: #ffedd5; color: #c2410c; }
+.grade-F { background: #fee2e2; color: #b91c1c; }
+
+/* Checklist grid */
+.checklist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.checklist-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.checklist-item label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: capitalize;
+}
+
+.checklist-item input[type="number"] {
+  padding: 0.5rem 0.75rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.875rem;
+  outline: none;
+  width: 90px;
+  transition: var(--transition-fast);
+}
+
+.checklist-item input[type="number"]:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Score display */
+.checklist-score-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0.85rem;
+  background: var(--bg);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+.checklist-score-label {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  text-transform: capitalize;
+}
+
+.checklist-score-value {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}

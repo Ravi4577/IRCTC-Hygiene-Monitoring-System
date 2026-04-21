@@ -1,0 +1,50 @@
+.badge-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.22rem 0.65rem;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.badge-pill--default { background: #f1f5f9; color: #475569; }
+.badge-pill--success { background: #dcfce7; color: #15803d; }
+.badge-pill--warning { background: #fef9c3; color: #a16207; }
+.badge-pill--danger  { background: #fee2e2; color: #b91c1c; }
+.badge-pill--info    { background: #e0f2fe; color: #0369a1; }
+.badge-pill--primary { background: #ede9fe; color: #6d28d9; }
+
+/* Status */
+.badge-pill--pending     { background: #fef9c3; color: #a16207; }
+.badge-pill--in_progress { background: #e0f2fe; color: #0369a1; }
+.badge-pill--resolved    { background: #dcfce7; color: #15803d; }
+.badge-pill--rejected    { background: #fee2e2; color: #b91c1c; }
+.badge-pill--scheduled   { background: #ede9fe; color: #6d28d9; }
+.badge-pill--completed   { background: #dcfce7; color: #15803d; }
+.badge-pill--cancelled   { background: #f1f5f9; color: #64748b; }
+
+/* Sentiment */
+.badge-pill--positive { background: #dcfce7; color: #15803d; }
+.badge-pill--neutral  { background: #f1f5f9; color: #64748b; }
+.badge-pill--negative { background: #fee2e2; color: #b91c1c; }
+
+/* Priority */
+.badge-pill--low      { background: #dcfce7; color: #15803d; }
+.badge-pill--medium   { background: #fef9c3; color: #a16207; }
+.badge-pill--high     { background: #fee2e2; color: #b91c1c; }
+.badge-pill--critical { background: #7f1d1d; color: #fecaca; }
+
+/* Role */
+.badge-pill--admin     { background: #ede9fe; color: #6d28d9; }
+.badge-pill--officer   { background: #dcfce7; color: #15803d; }
+.badge-pill--passenger { background: #e0f2fe; color: #0369a1; }
+.badge-pill--vendor    { background: #fef9c3; color: #a16207; }
+
+/* Active/Inactive */
+.badge-pill--active   { background: #dcfce7; color: #15803d; }
+.badge-pill--inactive { background: #fee2e2; color: #b91c1c; }
+.badge-pill--verified { background: #dcfce7; color: #15803d; }
+.badge-pill--invalid  { background: #fee2e2; color: #b91c1c; }
