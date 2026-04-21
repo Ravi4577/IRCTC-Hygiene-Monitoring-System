@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiEye, FiEyeOff, FiAlertCircle } from 'react-icons/fi';
+import { FiEye, FiEyeOff, FiAlertCircle, FiWifi } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 import './Auth.css';
 
@@ -10,63 +10,69 @@ const Login = () => {
 
   const [form, setForm] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
+  const [error, setError] = useState('');          // single string, not object
   const [showPassword, setShowPassword] = useState(false);
 
   const validate = () => {
-    const errs = {};
     const email = form.email.trim().toLowerCase();
-    if (!email) errs.email = 'Email address is required';
-    else if (!/\S+@\S+\.\S+/.test(email)) errs.email = 'Enter a valid email address';
-    if (!form.password) errs.password = 'Password is required';
-    return errs;
+    if (!email) return 'Email address is required';
+    if (!/\S+@\S+\.\S+/.test(email)) return 'Enter a valid email address';
+    if (!form.password) return 'Password is required';
+    return null;
   };
 
   const handleChange = (field) => (e) => {
     setForm({ ...form, [field]: e.target.value });
-    // Clear all errors on any change so stale errors don't confuse the user
-    if (Object.keys(errors).length) setErrors({});
+    if (error) setError('');   // clear error as soon as user types
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
-    const errs = validate();
-    if (Object.keys(errs).length) { setErrors(errs); return; }
+    const validationError = validate();
+    if (validationError) { setError(validationError); return; }
 
     setLoading(true);
-    setErrors({});
+    setError('');
 
-    // Sanitise email before sending — trims whitespace and lowercases
     const email    = form.email.trim().toLowerCase();
     const password = form.password;
 
     try {
       await login(email, password);
-      // Navigate to /dashboard — DashboardRedirect will route to the correct
-      // role-specific page once the auth state is set.
-      // Using replace:true prevents the login page from being in browser history.
       navigate('/dashboard', { replace: true });
     } catch (err) {
-      const status = err.response?.status;
-      const msg    = err.response?.data?.message;
+      if (err.response) {
+        // Server replied — show the real message
+        const status   = err.response.status;
+        const msg      = err.response.data?.message;
+        const firstErr = err.response.data?.errors?.[0]?.message;
 
-      if (status === 401) {
-        setErrors({ general: 'Invalid email or password. Please check your credentials.' });
-      } else if (status === 403) {
-        setErrors({ general: msg || 'Account access denied.' });
-      } else if (status === 400) {
-        // Validation error from server
-        const firstErr = err.response?.data?.errors?.[0]?.message;
-        setErrors({ general: firstErr || msg || 'Please check your input.' });
+        if (status === 401) {
+          setError('Invalid email or password. Please check your credentials.');
+        } else if (status === 403) {
+          setError(msg || 'Account access denied. Contact support.');
+        } else if (status === 400) {
+          setError(firstErr || msg || 'Please check your input and try again.');
+        } else {
+          setError(msg || `Server error (${status}). Please try again.`);
+        }
+      } else if (err.request) {
+        // Request sent but no response — server unreachable or CORS blocked
+        setError(
+          'Cannot reach the server. Please check your internet connection and try again.'
+        );
       } else {
-        setErrors({ general: 'Unable to connect. Please try again.' });
+        setError(err.message || 'An unexpected error occurred.');
       }
     } finally {
       setLoading(false);
     }
   };
+
+  const emailError    = !form.email && error === 'Email address is required';
+  const passwordError = !form.password && error === 'Password is required';
 
   return (
     <div className="auth-card">
@@ -74,10 +80,10 @@ const Login = () => {
       <h2 className="auth-title">Sign In</h2>
       <p className="auth-subtitle">Enter your email and password to continue.</p>
 
-      {errors.general && (
+      {error && (
         <div className="auth-error-banner" role="alert">
           <FiAlertCircle />
-          <span>{errors.general}</span>
+          <span>{error}</span>
         </div>
       )}
 
@@ -91,13 +97,12 @@ const Login = () => {
             placeholder="you@example.com"
             value={form.email}
             onChange={handleChange('email')}
-            className={errors.email ? 'error' : ''}
+            className={emailError ? 'error' : ''}
             autoComplete="email"
             autoCapitalize="none"
             autoCorrect="off"
             spellCheck="false"
           />
-          {errors.email && <span className="form-error">{errors.email}</span>}
         </div>
 
         <div className="form-group">
@@ -109,7 +114,7 @@ const Login = () => {
               placeholder="Enter your password"
               value={form.password}
               onChange={handleChange('password')}
-              className={errors.password ? 'error' : ''}
+              className={passwordError ? 'error' : ''}
               autoComplete="current-password"
               autoCapitalize="none"
               autoCorrect="off"
@@ -125,7 +130,6 @@ const Login = () => {
               {showPassword ? <FiEyeOff /> : <FiEye />}
             </button>
           </div>
-          {errors.password && <span className="form-error">{errors.password}</span>}
         </div>
 
         <button
