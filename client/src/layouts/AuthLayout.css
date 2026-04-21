@@ -4,9 +4,10 @@
 .auth-layout {
   display: flex;
   min-height: 100vh;
+  min-height: 100dvh; /* dynamic viewport height — accounts for mobile browser chrome */
 }
 
-/* ── Left brand panel ── */
+/* ── Left brand panel (desktop only) ── */
 .auth-brand {
   flex: 1;
   background: linear-gradient(145deg, #0f172a 0%, #1e3a8a 60%, #1d4ed8 100%);
@@ -84,23 +85,29 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  /* overflow-y: auto is critical — lets the form scroll when keyboard is open */
+  overflow-y: auto;
   padding: 2rem 1.5rem;
   background: #f8fafc;
-  overflow-y: auto;
 }
 
-/* ── Responsive ── */
+/* ── Tablet / Mobile ── */
 @media (max-width: 900px) {
-  /* Hide brand panel on tablet/mobile — form takes full width */
   .auth-brand { display: none; }
+
   .auth-form-container {
-    flex: 1;
-    padding: 1.5rem 1rem;
+    /* On mobile: align to top so form is visible above keyboard */
     align-items: flex-start;
-    padding-top: 2rem;
+    padding: 2rem 1.25rem 3rem;
+    /* Full width */
+    width: 100%;
   }
 }
 
 @media (max-width: 480px) {
-  .auth-form-container { padding: 1rem 0.75rem; }
+  .auth-form-container {
+    padding: 1.25rem 0.75rem 2rem;
+    /* Remove background on very small screens — card is white anyway */
+    background: white;
+  }
 }

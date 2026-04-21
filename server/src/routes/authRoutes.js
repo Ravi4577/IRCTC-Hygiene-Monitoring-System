@@ -11,16 +11,20 @@ router.post(
   '/register',
   [
     body('name').trim().notEmpty().withMessage('Full name is required'),
-    body('email').isEmail().normalizeEmail().withMessage('A valid email address is required'),
+    // Use isEmail() only — do NOT use normalizeEmail() as it can mangle addresses
+    // (e.g. strips dots in Gmail, lowercases in unexpected ways)
+    // The controller handles lowercasing consistently.
+    body('email')
+      .trim()
+      .isEmail()
+      .withMessage('A valid email address is required'),
     body('password')
       .isLength({ min: 6 })
       .withMessage('Password must be at least 6 characters'),
-    // Block admin role at the validator level (belt-and-suspenders)
     body('role')
       .optional()
       .isIn(['passenger', 'officer', 'vendor'])
       .withMessage('Invalid role. Allowed: passenger, officer, vendor'),
-    // Phone required for passengers
     body('phone')
       .if(body('role').equals('passenger'))
       .notEmpty().withMessage('Phone number is required for passengers')
@@ -34,8 +38,15 @@ router.post(
 router.post(
   '/login',
   [
-    body('email').isEmail().normalizeEmail().withMessage('A valid email address is required'),
-    body('password').notEmpty().withMessage('Password is required'),
+    // trim() removes any accidental whitespace from mobile keyboards
+    // isEmail() validates format — no normalizeEmail() to avoid mangling
+    body('email')
+      .trim()
+      .isEmail()
+      .withMessage('A valid email address is required'),
+    body('password')
+      .notEmpty()
+      .withMessage('Password is required'),
   ],
   validate,
   login
