@@ -72,3 +72,9 @@
 
 .alerts-empty svg { opacity: 0.3; }
 .alerts-empty p { font-size: 0.875rem; }
+
+@media (max-width: 768px) {
+  .alert-item { padding: 0.9rem 1rem; }
+  .alert-title { font-size: 0.82rem; }
+  .alert-message { font-size: 0.78rem; }
+}

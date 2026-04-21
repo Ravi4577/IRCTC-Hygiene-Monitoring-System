@@ -106,3 +106,14 @@
   color: var(--text-primary);
   font-weight: 600;
 }
+
+@media (max-width: 768px) {
+  .pnr-card { padding: 1.1rem; }
+  .pnr-form { flex-direction: column; }
+  .pnr-form input { width: 100%; }
+  .pnr-details { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 480px) {
+  .pnr-details { grid-template-columns: 1fr; }
+}

@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiEye, FiEyeOff, FiAlertCircle } from 'react-icons/fi';
+import { FiEye, FiEyeOff, FiAlertCircle, FiCheckCircle } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
-import toast from 'react-hot-toast';
 import './Auth.css';
 
-// Allowed roles for public registration — admin is intentionally excluded
+// Roles available for public registration — admin excluded intentionally
 const ROLES = [
   { value: 'passenger', label: 'Passenger' },
   { value: 'vendor',    label: 'Vendor / Food Stall Owner' },
@@ -25,6 +24,9 @@ const Register = () => {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  // Success state — shown after account is created
+  const [registered, setRegistered] = useState(false);
+  const [registeredName, setRegisteredName] = useState('');
 
   const set = (field) => (e) => {
     setForm({ ...form, [field]: e.target.value });
@@ -38,11 +40,8 @@ const Register = () => {
     if (!form.email.trim()) errs.email = 'Email address is required';
     else if (!/\S+@\S+\.\S+/.test(form.email)) errs.email = 'Enter a valid email address';
 
-    if (!form.phone.trim()) {
-      errs.phone = 'Phone number is required';
-    } else if (!/^[0-9]{10}$/.test(form.phone.trim())) {
-      errs.phone = 'Enter a valid 10-digit phone number';
-    }
+    if (!form.phone.trim()) errs.phone = 'Phone number is required';
+    else if (!/^[0-9]{10}$/.test(form.phone.trim())) errs.phone = 'Enter a valid 10-digit phone number';
 
     if (form.password.length < 6) errs.password = 'Password must be at least 6 characters';
     if (form.password !== form.confirmPassword) errs.confirmPassword = 'Passwords do not match';
@@ -60,12 +59,13 @@ const Register = () => {
 
     try {
       const { confirmPassword, ...data } = form;
-      await register(data);
-      toast.success('Account created! Welcome aboard 🎉');
-      navigate('/dashboard');
+      const createdUser = await register(data);
+
+      // Show success screen — do NOT navigate to dashboard
+      setRegisteredName(createdUser?.name || form.name);
+      setRegistered(true);
     } catch (err) {
       const msg = err.response?.data?.message || 'Registration failed. Please try again.';
-      toast.error(msg);
       if (msg.toLowerCase().includes('email')) setErrors({ email: msg });
       else setErrors({ general: msg });
     } finally {
@@ -73,6 +73,33 @@ const Register = () => {
     }
   };
 
+  // ── Success screen ────────────────────────────────────────────────────────
+  if (registered) {
+    return (
+      <div className="auth-card">
+        <div className="auth-success-icon">
+          <FiCheckCircle />
+        </div>
+        <h2 className="auth-title">Registration Successful!</h2>
+        <p className="auth-subtitle">
+          Welcome, <strong>{registeredName}</strong>! Your account has been created.
+          Please sign in to continue.
+        </p>
+        <button
+          className="auth-submit-btn"
+          onClick={() => navigate('/login')}
+          style={{ marginTop: '0.5rem' }}
+        >
+          Go to Login
+        </button>
+        <p className="auth-footer" style={{ marginTop: '1rem' }}>
+          <Link to="/login">← Back to Sign In</Link>
+        </p>
+      </div>
+    );
+  }
+
+  // ── Registration form ─────────────────────────────────────────────────────
   return (
     <div className="auth-card">
       <div className="auth-logo-mark">🚂</div>
@@ -134,7 +161,7 @@ const Register = () => {
           {errors.phone && <span className="form-error">{errors.phone}</span>}
         </div>
 
-        {/* Role — admin intentionally excluded */}
+        {/* Role */}
         <div className="form-group">
           <label htmlFor="reg-role">I am registering as <span className="required-star">*</span></label>
           <select id="reg-role" value={form.role} onChange={set('role')}>

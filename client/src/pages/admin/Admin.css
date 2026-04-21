@@ -166,4 +166,6 @@
 
 @media (max-width: 600px) {
   .admin-form-grid { grid-template-columns: 1fr; }
+  .admin-form-card { padding: 1rem; }
+  .admin-success-card { padding: 1.5rem 1rem; }
 }

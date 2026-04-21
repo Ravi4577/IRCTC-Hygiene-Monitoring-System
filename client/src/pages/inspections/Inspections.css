@@ -5,11 +5,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   font-weight: 800;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
+  flex-shrink: 0;
 }
 
 .grade-A { background: #dcfce7; color: #15803d; }
@@ -18,34 +19,34 @@
 .grade-D { background: #ffedd5; color: #c2410c; }
 .grade-F { background: #fee2e2; color: #b91c1c; }
 
-/* Checklist grid */
+/* ── Checklist grid ── */
 .checklist-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 0.75rem;
-  margin-bottom: 1.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.65rem;
+  margin-bottom: 1.1rem;
 }
 
 .checklist-item {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.3rem;
 }
 
 .checklist-item label {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
   color: var(--text-secondary);
   text-transform: capitalize;
 }
 
 .checklist-item input[type="number"] {
-  padding: 0.5rem 0.75rem;
+  padding: 0.45rem 0.65rem;
   border: 1.5px solid var(--border);
   border-radius: var(--radius);
   font-size: 0.875rem;
   outline: none;
-  width: 90px;
+  width: 80px;
   transition: var(--transition-fast);
 }
 
@@ -54,25 +55,34 @@
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-/* Score display */
+/* ── Score display row ── */
 .checklist-score-display {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.6rem 0.85rem;
+  padding: 0.55rem 0.8rem;
   background: var(--bg);
   border-radius: var(--radius);
   border: 1px solid var(--border);
 }
 
 .checklist-score-label {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   color: var(--text-secondary);
   text-transform: capitalize;
 }
 
 .checklist-score-value {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 700;
   color: var(--text-primary);
+}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .checklist-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .checklist-grid { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
 }

@@ -1,23 +1,30 @@
+/* ============================================
+   DASHBOARD LAYOUT
+   ============================================ */
 .dashboard-layout {
   display: flex;
   min-height: 100vh;
+  position: relative;
 }
 
 .dashboard-main {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-width: 0;
+  min-width: 0;          /* prevents flex child from overflowing */
   background: var(--bg);
+  /* Ensure content is always accessible even when sidebar is open on desktop */
+  overflow: hidden;
 }
 
 .dashboard-content {
   flex: 1;
   padding: 1.5rem;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
-/* Loading screen */
+/* ── Loading screen ── */
 .loading-screen {
   display: flex;
   flex-direction: column;
@@ -38,9 +45,25 @@
 
 @keyframes pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(0.95); }
+  50%       { opacity: 0.6; transform: scale(0.95); }
 }
 
+/* ── Tablet ── */
+@media (max-width: 1024px) {
+  .dashboard-content { padding: 1.25rem; }
+}
+
+/* ── Mobile ── */
 @media (max-width: 768px) {
-  .dashboard-content { padding: 1rem; }
+  .dashboard-content { padding: 1rem 0.875rem; }
+
+  /* On mobile the sidebar is a fixed overlay, so the main content
+     should take the full width — no margin needed */
+  .dashboard-main {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-content { padding: 0.875rem 0.75rem; }
 }

@@ -6,7 +6,7 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
   border: 1px solid var(--border);
-  overflow: hidden;
+  overflow-x: auto;          /* horizontal scroll on mobile */
 }
 
 .complaint-title {
@@ -16,18 +16,19 @@
 }
 
 .complaint-meta {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--text-muted);
 }
 
-/* Submit complaint form */
+/* ── Submit complaint form ── */
 .submit-form-card {
   background: white;
   border-radius: var(--radius-lg);
-  padding: 1.75rem;
+  padding: 1.5rem;
   box-shadow: var(--shadow);
   border: 1px solid var(--border);
   max-width: 800px;
+  width: 100%;
 }
 
 .submit-form-card .form-group label {
@@ -36,11 +37,11 @@
   color: var(--text-primary);
 }
 
-/* Image upload */
+/* ── Image upload ── */
 .image-upload-area {
   border: 2px dashed var(--border);
   border-radius: var(--radius);
-  padding: 1.75rem;
+  padding: 1.5rem 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -48,6 +49,7 @@
   background: var(--bg);
   transition: var(--transition-fast);
   margin-top: 0.4rem;
+  cursor: pointer;
 }
 
 .image-upload-area:hover {
@@ -57,8 +59,8 @@
 
 .image-preview-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 0.65rem;
   margin-top: 0.75rem;
 }
 
@@ -107,7 +109,7 @@
   aspect-ratio: 1;
   cursor: pointer;
   color: var(--text-muted);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   transition: var(--transition-fast);
 }
 
@@ -117,13 +119,13 @@
   background: var(--primary-light);
 }
 
-.image-add-more svg { font-size: 1.2rem; }
+.image-add-more svg { font-size: 1.1rem; }
 
-/* Complaint images in detail view */
+/* ── Complaint images in detail view ── */
 .complaint-images {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.65rem;
   margin-top: 0.5rem;
 }
 
@@ -144,11 +146,11 @@
   object-fit: cover;
 }
 
-/* Status update card */
+/* ── Status update card ── */
 .status-update-card {
   background: white;
   border-radius: var(--radius-lg);
-  padding: 1.4rem;
+  padding: 1.25rem;
   box-shadow: var(--shadow);
   border: 1px solid var(--border);
 }
@@ -176,4 +178,16 @@
 .status-update-card .form-group select:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .submit-form-card { padding: 1rem; }
+  .image-upload-area { padding: 1.1rem 0.75rem; }
+  .complaint-images { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .complaint-images { grid-template-columns: repeat(2, 1fr); }
+  .image-preview-grid { grid-template-columns: repeat(3, 1fr); }
 }

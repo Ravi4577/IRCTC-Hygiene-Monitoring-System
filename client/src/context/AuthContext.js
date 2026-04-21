@@ -7,19 +7,24 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Restore session on page load
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       api.get('/auth/me')
         .then((res) => setUser(res.data.user))
-        .catch(() => localStorage.removeItem('token'))
+        .catch(() => {
+          localStorage.removeItem('token');
+          delete api.defaults.headers.common['Authorization'];
+        })
         .finally(() => setLoading(false));
     } else {
       setLoading(false);
     }
   }, []);
 
+  // Login — stores token and sets user in state
   const login = async (email, password) => {
     const res = await api.post('/auth/login', { email, password });
     const { token, user } = res.data;
@@ -29,15 +34,15 @@ export const AuthProvider = ({ children }) => {
     return user;
   };
 
+  // Register — creates account ONLY, does NOT log the user in
+  // Returns the created user data so the caller can show a success message
   const register = async (data) => {
     const res = await api.post('/auth/register', data);
-    const { token, user } = res.data;
-    localStorage.setItem('token', token);
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    setUser(user);
-    return user;
+    // Intentionally NOT storing token or setting user — user must log in manually
+    return res.data.user;
   };
 
+  // Logout — clears token and user state
   const logout = () => {
     localStorage.removeItem('token');
     delete api.defaults.headers.common['Authorization'];
