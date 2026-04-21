@@ -7,7 +7,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Restore session on page load
+  // ── Restore session on page load ──────────────────────────────────────────
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -15,6 +15,7 @@ export const AuthProvider = ({ children }) => {
       api.get('/auth/me')
         .then((res) => setUser(res.data.user))
         .catch(() => {
+          // Token invalid or expired — clear it
           localStorage.removeItem('token');
           delete api.defaults.headers.common['Authorization'];
         })
@@ -24,25 +25,28 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // Login — stores token and sets user in state
+  // ── Login ─────────────────────────────────────────────────────────────────
+  // Sends credentials, stores JWT, sets user state, returns user object
   const login = async (email, password) => {
     const res = await api.post('/auth/login', { email, password });
     const { token, user } = res.data;
+
+    if (!token) throw new Error('No token received from server');
+
     localStorage.setItem('token', token);
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     setUser(user);
     return user;
   };
 
-  // Register — creates account ONLY, does NOT log the user in
-  // Returns the created user data so the caller can show a success message
+  // ── Register ──────────────────────────────────────────────────────────────
+  // Creates account ONLY — does NOT log the user in, does NOT store token
   const register = async (data) => {
     const res = await api.post('/auth/register', data);
-    // Intentionally NOT storing token or setting user — user must log in manually
-    return res.data.user;
+    return res.data.user; // caller shows success screen, then redirects to /login
   };
 
-  // Logout — clears token and user state
+  // ── Logout ────────────────────────────────────────────────────────────────
   const logout = () => {
     localStorage.removeItem('token');
     delete api.defaults.headers.common['Authorization'];

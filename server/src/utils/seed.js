@@ -50,10 +50,10 @@ const seed = async () => {
 
   // ── Create users ────────────────────────────────────────────────────────────
   const users = await User.insertMany([
-    // Admin — credentials from env
+    // Admin — credentials from env (email lowercased to match login normalisation)
     {
       name: ADMIN_NAME,
-      email: ADMIN_EMAIL,
+      email: ADMIN_EMAIL.trim().toLowerCase(),
       password: adminHash,
       role: 'admin',
       isActive: true,

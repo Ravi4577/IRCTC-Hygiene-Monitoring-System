@@ -29,81 +29,111 @@ import AnalyticsPage from '../pages/analytics/AnalyticsPage';
 import UsersPage from '../pages/users/UsersPage';
 import ProfilePage from '../pages/profile/ProfilePage';
 import NotFound from '../pages/NotFound';
-
-// Admin pages
 import AdminVendorsPage from '../pages/admin/AdminVendorsPage';
 import AddVendorPage from '../pages/admin/AddVendorPage';
 
-// Protected route wrapper
+// ── Loading screen shown while auth state is being restored ──────────────────
+const AuthLoading = () => (
+  <div className="loading-screen">Restoring session…</div>
+);
+
+// ── Protected route — waits for auth to resolve before deciding ──────────────
 const ProtectedRoute = ({ children, roles }) => {
   const { user, loading } = useAuth();
-  if (loading) return <div className="loading-screen">Loading...</div>;
+
+  // Still checking localStorage / calling /auth/me — don't redirect yet
+  if (loading) return <AuthLoading />;
+
+  // Not logged in → go to login
   if (!user) return <Navigate to="/login" replace />;
-  if (roles && !roles.includes(user.role)) return <Navigate to="/dashboard" replace />;
+
+  // Logged in but wrong role → go to their own dashboard
+  if (roles && !roles.includes(user.role)) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return children;
 };
 
-// Redirect to role-specific dashboard
+// ── Public route — if already logged in, skip to dashboard ──────────────────
+const PublicRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) return <AuthLoading />;
+  if (user) return <Navigate to="/dashboard" replace />;
+  return children;
+};
+
+// ── Redirect to the correct role dashboard ───────────────────────────────────
 const DashboardRedirect = () => {
   const { user } = useAuth();
-  const dashboards = {
-    admin: '/dashboard/admin',
-    officer: '/dashboard/officer',
-    vendor: '/dashboard/vendor',
+  const map = {
+    admin:     '/dashboard/admin',
+    officer:   '/dashboard/officer',
+    vendor:    '/dashboard/vendor',
     passenger: '/dashboard/passenger',
   };
-  return <Navigate to={dashboards[user?.role] || '/dashboard/passenger'} replace />;
+  return <Navigate to={map[user?.role] || '/dashboard/passenger'} replace />;
 };
 
-const AppRoutes = () => {
-  const { user } = useAuth();
+// ── Routes ───────────────────────────────────────────────────────────────────
+const AppRoutes = () => (
+  <Routes>
+    {/* ── Public (auth) routes ── */}
+    <Route element={<AuthLayout />}>
+      <Route path="/login"    element={<PublicRoute><Login /></PublicRoute>} />
+      <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+    </Route>
 
-  return (
-    <Routes>
-      {/* Public routes */}
-      <Route element={<AuthLayout />}>
-        <Route path="/login" element={user ? <Navigate to="/dashboard" /> : <Login />} />
-        <Route path="/register" element={user ? <Navigate to="/dashboard" /> : <Register />} />
-      </Route>
+    {/* ── Protected routes ── */}
+    <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+      <Route path="/dashboard" element={<DashboardRedirect />} />
 
-      {/* Protected routes */}
-      <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
-        <Route path="/dashboard" element={<DashboardRedirect />} />
-        <Route path="/dashboard/admin"     element={<ProtectedRoute roles={['admin']}><AdminDashboard /></ProtectedRoute>} />
-        <Route path="/dashboard/passenger" element={<ProtectedRoute roles={['passenger']}><PassengerDashboard /></ProtectedRoute>} />
-        <Route path="/dashboard/officer"   element={<ProtectedRoute roles={['officer']}><OfficerDashboard /></ProtectedRoute>} />
-        <Route path="/dashboard/vendor"    element={<ProtectedRoute roles={['vendor']}><VendorDashboard /></ProtectedRoute>} />
+      {/* Role dashboards */}
+      <Route path="/dashboard/admin"
+        element={<ProtectedRoute roles={['admin']}><AdminDashboard /></ProtectedRoute>} />
+      <Route path="/dashboard/passenger"
+        element={<ProtectedRoute roles={['passenger']}><PassengerDashboard /></ProtectedRoute>} />
+      <Route path="/dashboard/officer"
+        element={<ProtectedRoute roles={['officer']}><OfficerDashboard /></ProtectedRoute>} />
+      <Route path="/dashboard/vendor"
+        element={<ProtectedRoute roles={['vendor']}><VendorDashboard /></ProtectedRoute>} />
 
-        {/* Complaints */}
-        <Route path="/complaints" element={<ComplaintsPage />} />
-        <Route path="/complaints/new" element={<ProtectedRoute roles={['passenger']}><SubmitComplaint /></ProtectedRoute>} />
-        <Route path="/complaints/:id" element={<ComplaintDetail />} />
+      {/* Complaints */}
+      <Route path="/complaints"     element={<ComplaintsPage />} />
+      <Route path="/complaints/new" element={<ProtectedRoute roles={['passenger']}><SubmitComplaint /></ProtectedRoute>} />
+      <Route path="/complaints/:id" element={<ComplaintDetail />} />
 
-        {/* Vendors */}
-        <Route path="/vendors" element={<VendorsPage />} />
-        <Route path="/vendors/:id" element={<VendorDetail />} />
+      {/* Vendors */}
+      <Route path="/vendors"    element={<VendorsPage />} />
+      <Route path="/vendors/:id" element={<VendorDetail />} />
 
-        {/* Admin vendor management */}
-        <Route path="/admin/vendors" element={<ProtectedRoute roles={['admin']}><AdminVendorsPage /></ProtectedRoute>} />
-        <Route path="/admin/vendors/add" element={<ProtectedRoute roles={['admin']}><AddVendorPage /></ProtectedRoute>} />
+      {/* Admin vendor management */}
+      <Route path="/admin/vendors"
+        element={<ProtectedRoute roles={['admin']}><AdminVendorsPage /></ProtectedRoute>} />
+      <Route path="/admin/vendors/add"
+        element={<ProtectedRoute roles={['admin']}><AddVendorPage /></ProtectedRoute>} />
 
-        {/* Inspections */}
-        <Route path="/inspections" element={<ProtectedRoute roles={['admin', 'officer']}><InspectionsPage /></ProtectedRoute>} />
-        <Route path="/inspections/:id" element={<ProtectedRoute roles={['admin', 'officer']}><InspectionDetail /></ProtectedRoute>} />
+      {/* Inspections */}
+      <Route path="/inspections"
+        element={<ProtectedRoute roles={['admin', 'officer']}><InspectionsPage /></ProtectedRoute>} />
+      <Route path="/inspections/:id"
+        element={<ProtectedRoute roles={['admin', 'officer']}><InspectionDetail /></ProtectedRoute>} />
 
-        {/* Other */}
-        <Route path="/messages"  element={<MessagesPage />} />
-        <Route path="/alerts"    element={<AlertsPage />} />
-        <Route path="/pnr"       element={<PnrPage />} />
-        <Route path="/analytics" element={<ProtectedRoute roles={['admin', 'officer']}><AnalyticsPage /></ProtectedRoute>} />
-        <Route path="/users"     element={<ProtectedRoute roles={['admin']}><UsersPage /></ProtectedRoute>} />
-        <Route path="/profile"   element={<ProfilePage />} />
-      </Route>
+      {/* Other */}
+      <Route path="/messages" element={<MessagesPage />} />
+      <Route path="/alerts"   element={<AlertsPage />} />
+      <Route path="/pnr"      element={<PnrPage />} />
+      <Route path="/analytics"
+        element={<ProtectedRoute roles={['admin', 'officer']}><AnalyticsPage /></ProtectedRoute>} />
+      <Route path="/users"
+        element={<ProtectedRoute roles={['admin']}><UsersPage /></ProtectedRoute>} />
+      <Route path="/profile"  element={<ProfilePage />} />
+    </Route>
 
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
-  );
-};
+    {/* ── Fallbacks ── */}
+    <Route path="/" element={<Navigate to="/dashboard" replace />} />
+    <Route path="*" element={<NotFound />} />
+  </Routes>
+);
 
 export default AppRoutes;

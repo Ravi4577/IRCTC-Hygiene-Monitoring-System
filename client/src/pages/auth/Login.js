@@ -15,7 +15,6 @@ const Login = () => {
 
   const validate = () => {
     const errs = {};
-    // Trim and lowercase before validating — fixes mobile keyboard quirks
     const email = form.email.trim().toLowerCase();
     if (!email) errs.email = 'Email address is required';
     else if (!/\S+@\S+\.\S+/.test(email)) errs.email = 'Enter a valid email address';
@@ -25,12 +24,13 @@ const Login = () => {
 
   const handleChange = (field) => (e) => {
     setForm({ ...form, [field]: e.target.value });
-    if (errors[field] || errors.general) setErrors({});
+    // Clear all errors on any change so stale errors don't confuse the user
+    if (Object.keys(errors).length) setErrors({});
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    e.stopPropagation(); // prevent any parent handlers on mobile
+    e.stopPropagation();
 
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
@@ -38,30 +38,30 @@ const Login = () => {
     setLoading(true);
     setErrors({});
 
-    // Always trim + lowercase email before sending — critical for mobile
-    const email = form.email.trim().toLowerCase();
+    // Sanitise email before sending — trims whitespace and lowercases
+    const email    = form.email.trim().toLowerCase();
     const password = form.password;
 
     try {
-      const user = await login(email, password);
-      // Navigate based on role
-      const dashboards = {
-        admin:     '/dashboard/admin',
-        officer:   '/dashboard/officer',
-        vendor:    '/dashboard/vendor',
-        passenger: '/dashboard/passenger',
-      };
-      navigate(dashboards[user.role] || '/dashboard', { replace: true });
+      await login(email, password);
+      // Navigate to /dashboard — DashboardRedirect will route to the correct
+      // role-specific page once the auth state is set.
+      // Using replace:true prevents the login page from being in browser history.
+      navigate('/dashboard', { replace: true });
     } catch (err) {
       const status = err.response?.status;
-      const msg    = err.response?.data?.message || 'Login failed. Please try again.';
+      const msg    = err.response?.data?.message;
 
       if (status === 401) {
         setErrors({ general: 'Invalid email or password. Please check your credentials.' });
       } else if (status === 403) {
-        setErrors({ general: msg });
+        setErrors({ general: msg || 'Account access denied.' });
+      } else if (status === 400) {
+        // Validation error from server
+        const firstErr = err.response?.data?.errors?.[0]?.message;
+        setErrors({ general: firstErr || msg || 'Please check your input.' });
       } else {
-        setErrors({ general: msg });
+        setErrors({ general: 'Unable to connect. Please try again.' });
       }
     } finally {
       setLoading(false);
@@ -81,23 +81,21 @@ const Login = () => {
         </div>
       )}
 
-      {/* noValidate disables browser native validation which can behave oddly on mobile */}
       <form onSubmit={handleSubmit} className="auth-form" noValidate>
         <div className="form-group">
           <label htmlFor="login-email">Email address</label>
           <input
             id="login-email"
             type="email"
-            inputMode="email"          /* shows email keyboard on mobile */
+            inputMode="email"
             placeholder="you@example.com"
             value={form.email}
             onChange={handleChange('email')}
             className={errors.email ? 'error' : ''}
             autoComplete="email"
-            autoCapitalize="none"      /* prevents iOS from capitalising email */
-            autoCorrect="off"          /* prevents autocorrect mangling email */
+            autoCapitalize="none"
+            autoCorrect="off"
             spellCheck="false"
-            /* NO autoFocus — causes keyboard pop + viewport shift on mobile */
           />
           {errors.email && <span className="form-error">{errors.email}</span>}
         </div>
@@ -122,7 +120,7 @@ const Login = () => {
               className="password-toggle"
               onClick={() => setShowPassword((p) => !p)}
               aria-label={showPassword ? 'Hide password' : 'Show password'}
-              tabIndex={-1}            /* don't steal tab focus from submit */
+              tabIndex={-1}
             >
               {showPassword ? <FiEyeOff /> : <FiEye />}
             </button>
