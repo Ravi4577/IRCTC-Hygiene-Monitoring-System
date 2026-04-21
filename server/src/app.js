@@ -11,8 +11,36 @@ const app = express();
 // Connect to MongoDB
 connectDB();
 
-// Middleware
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+// ── CORS ──────────────────────────────────────────────────────────────────────
+// Build the allowed-origins list from env + hardcoded dev defaults
+const ALLOWED_ORIGINS = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  // Production frontend — set CLIENT_URL on Render
+  ...(process.env.CLIENT_URL ? [process.env.CLIENT_URL] : []),
+  // Extra origins (comma-separated) — e.g. EXTRA_ORIGINS=https://a.com,https://b.com
+  ...(process.env.EXTRA_ORIGINS
+    ? process.env.EXTRA_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean)
+    : []),
+];
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (curl, Postman, server-to-server)
+    if (!origin) return callback(null, true);
+    if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
+    callback(new Error(`CORS: origin '${origin}' is not allowed`));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+// Handle preflight for every route
+app.options('*', cors(corsOptions));
+app.use(cors(corsOptions));
+
+// ── Body parsing ──────────────────────────────────────────────────────────────
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
