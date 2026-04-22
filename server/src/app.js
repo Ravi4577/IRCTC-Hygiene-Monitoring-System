@@ -12,13 +12,13 @@ const app = express();
 connectDB();
 
 // ── CORS ──────────────────────────────────────────────────────────────────────
-// Build the allowed-origins list from env + hardcoded dev defaults
-const ALLOWED_ORIGINS = [
+// Allowed exact origins (dev + production)
+const EXACT_ORIGINS = [
   'http://localhost:3000',
   'http://localhost:5173',
-  // Production frontend — set CLIENT_URL on Render
-  ...(process.env.CLIENT_URL ? [process.env.CLIENT_URL] : []),
-  // Extra origins (comma-separated) — e.g. EXTRA_ORIGINS=https://a.com,https://b.com
+  ...(process.env.CLIENT_URL
+    ? process.env.CLIENT_URL.split(',').map((o) => o.trim()).filter(Boolean)
+    : []),
   ...(process.env.EXTRA_ORIGINS
     ? process.env.EXTRA_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean)
     : []),
@@ -26,17 +26,26 @@ const ALLOWED_ORIGINS = [
 
 const corsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (curl, Postman, server-to-server)
+    // Allow requests with no origin (curl, Postman, mobile apps)
     if (!origin) return callback(null, true);
-    if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
-    callback(new Error(`CORS: origin '${origin}' is not allowed`));
+
+    // Exact match
+    if (EXACT_ORIGINS.includes(origin)) return callback(null, true);
+
+    // Allow ALL Vercel preview deployments for this project
+    // e.g. irctc-hygiene-monitoring-system-abc123.vercel.app
+    if (/^https:\/\/irctc-hygiene-monitoring-system[a-z0-9-]*\.vercel\.app$/.test(origin)) {
+      return callback(null, true);
+    }
+
+    callback(new Error(`CORS blocked: ${origin}`));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
-// Handle preflight for every route
+// Handle preflight OPTIONS for every route
 app.options('*', cors(corsOptions));
 app.use(cors(corsOptions));
 
